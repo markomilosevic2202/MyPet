@@ -1,4 +1,4 @@
-package com.marko.MyPet;
+package com.marko.mypet;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

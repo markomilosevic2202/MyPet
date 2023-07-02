@@ -1,4 +1,4 @@
-package com.marko.MyPet;
+package com.marko.mypet;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
