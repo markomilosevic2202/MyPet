@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ResponseUserDTO {
+public class ResponseDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Object payload;

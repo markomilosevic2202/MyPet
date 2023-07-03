@@ -31,6 +31,16 @@ public class UserController {
 
     @PostMapping()
     public ResponseEntity<?> register(@Valid @RequestBody RequestUserDTO requestUserDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
-        return userService.register(requestUserDTO, bindingResult, jwt);
+        return userService.registerUser(requestUserDTO, bindingResult, jwt);
     }
+
+    @GetMapping()
+    public ResponseEntity<?> getUser(@AuthenticationPrincipal Jwt jwt) {
+        return userService.getUser( jwt);
+    }
+    @GetMapping()
+    public ResponseEntity<?> putUser(@Valid @RequestBody RequestUserDTO requestUserDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
+        return userService.putUser(requestUserDTO, bindingResult, jwt);
+    }
+
 }

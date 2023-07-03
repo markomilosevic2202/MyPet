@@ -1,6 +1,7 @@
 package com.marko.mypet.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,15 +9,13 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
-import java.util.Set;
-
 @Entity
-@Table(name = "users")
+@Table(name = "pet")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class User {
+public class Pet {
 
     @Id
     @GeneratedValue(generator = "system-uuid")
@@ -24,13 +23,15 @@ public class User {
     @Column(name = "id", nullable = false)
     private String id;
     @Column(nullable = false)
-    private String firstName;
+    private String name;
     @Column(nullable = false)
-    private String lastName;
+    private Integer age;
     @Column(nullable = false)
-    private String email;
+    private Float weight;
     @Column(nullable = false)
-    private boolean enabled;
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<Pet> pets;
+    private boolean lost;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 }
