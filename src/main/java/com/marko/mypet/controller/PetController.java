@@ -10,10 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,4 +23,15 @@ public class PetController {
     public ResponseEntity<?> createPet(@Valid @RequestBody RequestPetDTO petRequestDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
         return petService.create(petRequestDTO, bindingResult, jwt);
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<?> getPet(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
+        return petService.getPet(id, jwt);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deletePet(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
+        return petService.deletePet(id, jwt);
+    }
+
 }

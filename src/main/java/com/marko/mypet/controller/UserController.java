@@ -38,7 +38,8 @@ public class UserController {
     public ResponseEntity<?> getUser(@AuthenticationPrincipal Jwt jwt) {
         return userService.getUser( jwt);
     }
-    @GetMapping()
+
+    @PutMapping()
     public ResponseEntity<?> putUser(@Valid @RequestBody RequestUserDTO requestUserDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
         return userService.putUser(requestUserDTO, bindingResult, jwt);
     }
