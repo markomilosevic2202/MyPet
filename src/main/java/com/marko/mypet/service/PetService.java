@@ -129,7 +129,7 @@ public class PetService {
             }
 
             if (!optionalUser.get().getId().equals(optionalPet.get().getUser().getId())) {
-                responseDTO.addError("You are not the owner of this pet. you cannot delete it");
+                responseDTO.addError("You are not the owner of this pet. You cannot delete it");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             optionalPet.get().setUser(null);
