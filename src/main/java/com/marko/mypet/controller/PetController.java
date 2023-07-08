@@ -34,4 +34,9 @@ public class PetController {
         return petService.deletePet(id, jwt);
     }
 
+    @GetMapping()
+    public ResponseEntity<?> getPets(@AuthenticationPrincipal Jwt jwt) {
+        return petService.getPets(jwt);
+    }
+
 }

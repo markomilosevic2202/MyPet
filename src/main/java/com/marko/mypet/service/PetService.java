@@ -1,12 +1,19 @@
 package com.marko.mypet.service;
 
 import com.marko.mypet.dto.response.RequestPetDTO;
+import com.marko.mypet.dto.response.RequestVetDTO;
 import com.marko.mypet.dto.response.ResponseDTO;
 import com.marko.mypet.entity.Pet;
 import com.marko.mypet.entity.User;
+import com.marko.mypet.entity.Vet;
 import com.marko.mypet.repository.PetRepository;
 import com.marko.mypet.repository.UserRepository;
 import com.marko.mypet.tool.JwtTools;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +22,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -25,6 +34,7 @@ public class PetService {
 
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private EntityManager entityManager;
 
     public ResponseEntity<?> create(RequestPetDTO requestPetDTO, BindingResult bindingResult, Jwt jwt) {
 
@@ -45,6 +55,7 @@ public class PetService {
 
             Pet pet = createPetFromPetDTO(requestPetDTO, new Pet());
             pet.setLost(false);
+            pet.setUser(optionalUser.get());
             pet = petRepository.save(pet);
             responseDTO.setPayload(pet);
             return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
@@ -68,14 +79,15 @@ public class PetService {
                 responseDTO.addError("Pet not found");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
-            responseDTO.setPayload(optionalPet);
+
+            Pet pet = optionalPet.get();
+            RequestPetDTO petDTO = mapPetToDTO(pet);
+            responseDTO.setPayload(petDTO);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            responseDTO.addError(e.getMessage());
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-
     }
 
     public ResponseEntity<?> deletePet(String id, Jwt jwt) {
@@ -123,5 +135,49 @@ public class PetService {
 
 
         return pet;
+    }
+
+    private RequestPetDTO mapPetToDTO(Pet pet) {
+        RequestPetDTO requestPetDTO = new RequestPetDTO();
+        requestPetDTO.setId(pet.getId());
+        requestPetDTO.setName(pet.getName());
+        requestPetDTO.setWeight(pet.getWeight());
+        requestPetDTO.setAge(pet.getAge());
+        List<RequestVetDTO> vetDTOList = new ArrayList<>();
+        for (Vet vet : pet.getVets()) {
+            RequestVetDTO vetDTO = new RequestVetDTO();
+            vetDTO.setId(vet.getId());
+            vetDTO.setFirstName(vet.getFirstName());
+            vetDTO.setLastName(vet.getLastName());
+            vetDTO.setIdSpecialty(vet.getSpecialty().getId());
+            vetDTOList.add(vetDTO);
+        }
+
+        requestPetDTO.setVets(vetDTOList);
+
+        return requestPetDTO;
+}
+
+    public ResponseEntity<?> getPets(Jwt jwt) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        try {
+            Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
+            if (optionalUser.isEmpty()) {
+                responseDTO.addError("User not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            List<Pet> pets = petRepository.findAll();
+            if (pets.isEmpty()) {
+                responseDTO.setPayload(new ArrayList<Vet>());
+                responseDTO.addError("Pet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            responseDTO.setPayload(pets);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            responseDTO.addError(e.getMessage());
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

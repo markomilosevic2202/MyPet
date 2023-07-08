@@ -14,7 +14,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @Setter
-@ToString
+
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class Vet {
@@ -43,6 +43,7 @@ public class Vet {
     List<Pet> pets;
 
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -61,5 +62,16 @@ public class Vet {
             pets = new ArrayList<>();
         }
         pets.add(thePet);
+    }
+
+    @Override
+    public String toString() {
+        return "Vet{" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", specialty=" + specialty +
+                ", pets=" + pets +
+                '}';
     }
 }

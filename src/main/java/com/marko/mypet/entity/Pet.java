@@ -18,7 +18,6 @@ import java.util.List;
 @Table(name = "pet")
 @Getter
 @Setter
-@ToString
 @RequiredArgsConstructor
 public class Pet {
 
@@ -54,6 +53,8 @@ public class Pet {
     private List<Vet> vets;
 
 
+
+
     @PrePersist
     private void prePersist() {
         Date date = new Date();
@@ -72,5 +73,20 @@ public class Pet {
             vets = new ArrayList<>();
         }
         vets.add(theVet);
+    }
+
+    @Override
+    public String toString() {
+        return "Pet{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", weight=" + weight +
+                ", lost=" + lost +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", user=" + user +
+                ", vets=" + vets +
+                '}';
     }
 }

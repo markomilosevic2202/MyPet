@@ -54,4 +54,11 @@ public class User {
     public void preUpdate() {
         this.updatedAt = new Date();
     }
+
+    public Pet getPetById(String id) {
+        if (id == null) {
+            return null;
+        }
+        return pets.stream().filter(p -> p.getId().equals(id)).findAny().orElse(null);
+    }
 }

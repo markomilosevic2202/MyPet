@@ -1,4 +1,4 @@
-INSERT specialty (id, name_specialty)  VALUES (UUID() ,'Oftamolog');
+INSERT specialty (id, name_specialty)  VALUES ('1' ,'Oftamolog');
 INSERT specialty (id, name_specialty)  VALUES (UUID() ,'Kardiolog');
 INSERT specialty (id, name_specialty)  VALUES (UUID() ,'Opste prakse');
 INSERT specialty (id, name_specialty)  VALUES (UUID() ,'Gastrolog');

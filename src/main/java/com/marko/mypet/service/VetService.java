@@ -60,17 +60,6 @@ public class VetService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             vet.setSpecialty(optionalSpecialty.get());
-
-
-
-            Optional<Pet> optionalPet = petRepository.findById(requestVetDTO.getIdPet());
-            if (optionalPet.isEmpty()) {
-                responseDTO.addError("Pet not found");
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-            vet.addPet(optionalPet.get());
-
-
             vet = vetRepository.save(vet);
 
             responseDTO.setPayload(vet);
@@ -130,7 +119,6 @@ public class VetService {
     }
 
 
-
     private Vet createVetFromVetDTO(RequestVetDTO requestVetDTO, Vet vet) {
         if (requestVetDTO.getFirstName() != null && !requestVetDTO.getFirstName().equals(vet.getFirstName())) {
             vet.setFirstName(requestVetDTO.getFirstName());
@@ -138,8 +126,6 @@ public class VetService {
         if (requestVetDTO.getLastName() != null && !requestVetDTO.getLastName().equals(vet.getLastName())) {
             vet.setLastName(requestVetDTO.getLastName());
         }
-
-
 
 
         return vet;
