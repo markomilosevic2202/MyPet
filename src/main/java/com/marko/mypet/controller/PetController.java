@@ -1,6 +1,7 @@
 package com.marko.mypet.controller;
 
 
+import com.marko.mypet.dto.response.RequestAddVetPet;
 import com.marko.mypet.dto.response.RequestPetDTO;
 import com.marko.mypet.service.PetService;
 import jakarta.validation.Valid;
@@ -37,6 +38,15 @@ public class PetController {
     @GetMapping()
     public ResponseEntity<?> getPets(@AuthenticationPrincipal Jwt jwt) {
         return petService.getPets(jwt);
+    }
+    @PostMapping("/vet")
+    public ResponseEntity<?> addVet(@Valid @RequestBody RequestAddVetPet requestAddVetPet, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
+        return petService.addVet(requestAddVetPet, bindingResult, jwt);
+    }
+
+    @DeleteMapping("/vet")
+    public ResponseEntity<?> deleteVet(@Valid @RequestBody RequestAddVetPet requestAddVetPet, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
+        return petService.deleteVet(requestAddVetPet, bindingResult, jwt);
     }
 
 }

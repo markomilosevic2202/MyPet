@@ -28,6 +28,7 @@ public class RequestVetDTO {
     private String lastName;
     @NotNull(message = "idSpecialty is required")
     private String idSpecialty;
+    private Specialty specialty;
     private List<RequestPetDTO> pets;
 
 

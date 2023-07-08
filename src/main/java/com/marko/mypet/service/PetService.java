@@ -1,5 +1,6 @@
 package com.marko.mypet.service;
 
+import com.marko.mypet.dto.response.RequestAddVetPet;
 import com.marko.mypet.dto.response.RequestPetDTO;
 import com.marko.mypet.dto.response.RequestVetDTO;
 import com.marko.mypet.dto.response.ResponseDTO;
@@ -8,12 +9,9 @@ import com.marko.mypet.entity.User;
 import com.marko.mypet.entity.Vet;
 import com.marko.mypet.repository.PetRepository;
 import com.marko.mypet.repository.UserRepository;
+import com.marko.mypet.repository.VetRepository;
 import com.marko.mypet.tool.JwtTools;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,6 +32,7 @@ public class PetService {
 
     private final UserRepository userRepository;
     private final PetRepository petRepository;
+    private final VetRepository vetRepository;
     private EntityManager entityManager;
 
     public ResponseEntity<?> create(RequestPetDTO requestPetDTO, BindingResult bindingResult, Jwt jwt) {
@@ -90,6 +89,30 @@ public class PetService {
         }
     }
 
+    public ResponseEntity<?> getPets(Jwt jwt) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        try {
+            Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
+            if (optionalUser.isEmpty()) {
+                responseDTO.addError("User not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            List<Pet> pets = petRepository.findAll();
+            if (pets.isEmpty()) {
+                responseDTO.setPayload(new ArrayList<Vet>());
+                responseDTO.addError("Pet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            List<RequestPetDTO> petDTOList = mapPetListToDTOList(petRepository.findAll());
+            responseDTO.setPayload(petDTOList);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        } catch (Exception e) {
+            responseDTO.addError(e.getMessage());
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public ResponseEntity<?> deletePet(String id, Jwt jwt) {
         ResponseDTO responseDTO = new ResponseDTO();
         try {
@@ -112,6 +135,88 @@ public class PetService {
             }
             optionalPet.get().setUser(null);
             petRepository.deleteById(id);
+            petRepository.flush();
+            responseDTO.addInfo("Pet deleted");
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<?> addVet(RequestAddVetPet requestAddVetPet, BindingResult bindingResult, Jwt jwt) {
+        ResponseDTO responseDTO = new ResponseDTO();
+
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(objectError -> {
+                responseDTO.addError(objectError.getDefaultMessage());
+            });
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }
+        try {
+            Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
+            if (optionalUser.isEmpty()) {
+                responseDTO.addError("User not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            Optional<Pet> optionalPet = petRepository.findById(requestAddVetPet.getIdPet());
+            if (optionalPet.isEmpty()) {
+                responseDTO.addError("Pet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            if (!optionalPet.get().getUser().getId().equals(optionalUser.get().getId())) {
+                responseDTO.addError("You are not the owner of this pet");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            Optional<Vet> optionalVet = vetRepository.findById(requestAddVetPet.getIdVet());
+            if (optionalVet.isEmpty()) {
+                responseDTO.addError("Vet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            Pet pet = optionalPet.get();
+            if (pet.getVets().contains(optionalVet.get())) {
+                responseDTO.addError("Vet already exists for this pet");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            pet.addVet(optionalVet.get());
+            pet = petRepository.save(pet);
+            RequestPetDTO petDTO = mapPetToDTO(pet);
+            responseDTO.setPayload(petDTO);
+            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+        } catch (Exception e) {
+            responseDTO.addError(e.getMessage());
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<?> deleteVet(RequestAddVetPet requestAddVetPet, BindingResult bindingResult, Jwt jwt) {
+        ResponseDTO responseDTO = new ResponseDTO();
+
+        try {
+            if (bindingResult.hasErrors()) {
+                bindingResult.getAllErrors().forEach(objectError -> {
+                    responseDTO.addError(objectError.getDefaultMessage());
+                });
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
+            if (optionalUser.isEmpty()) {
+                responseDTO.addError("User not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            Optional<Pet> optionalPet = petRepository.findById(requestAddVetPet.getIdPet());
+            if (optionalPet.isEmpty()) {
+                responseDTO.addError("Pet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            if (!optionalUser.get().getId().equals(optionalPet.get().getUser().getId())) {
+                responseDTO.addError("You are not the owner of this pet. You cannot delete it");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            petRepository.deleteVet(requestAddVetPet.getIdPet(),requestAddVetPet.getIdVet());
             petRepository.flush();
             responseDTO.addInfo("Pet deleted");
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -150,34 +255,23 @@ public class PetService {
             vetDTO.setFirstName(vet.getFirstName());
             vetDTO.setLastName(vet.getLastName());
             vetDTO.setIdSpecialty(vet.getSpecialty().getId());
+            vetDTO.setSpecialty(vet.getSpecialty());
             vetDTOList.add(vetDTO);
         }
 
         requestPetDTO.setVets(vetDTOList);
 
         return requestPetDTO;
-}
-
-    public ResponseEntity<?> getPets(Jwt jwt) {
-        ResponseDTO responseDTO = new ResponseDTO();
-        try {
-            Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
-            if (optionalUser.isEmpty()) {
-                responseDTO.addError("User not found");
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-            List<Pet> pets = petRepository.findAll();
-            if (pets.isEmpty()) {
-                responseDTO.setPayload(new ArrayList<Vet>());
-                responseDTO.addError("Pet not found");
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-            }
-
-            responseDTO.setPayload(pets);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        } catch (Exception e) {
-            responseDTO.addError(e.getMessage());
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
+
+    private List<RequestPetDTO> mapPetListToDTOList(List<Pet> petList) {
+        List<RequestPetDTO> petDTOList = new ArrayList<>();
+        for (Pet pet : petList) {
+            RequestPetDTO petDTO = mapPetToDTO(pet);
+            petDTOList.add(petDTO);
+        }
+        return petDTOList;
+    }
+
+
 }

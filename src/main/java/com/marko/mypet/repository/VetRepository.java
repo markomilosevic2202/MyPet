@@ -20,4 +20,6 @@ public interface VetRepository extends JpaRepository<Vet, String> {
     List<Vet> findBySpecialtyId(String id);
 
 
+
+
 }
