@@ -32,7 +32,7 @@ public class User {
     @Column(nullable = false)
     private String email;
     @Column(nullable = false)
-    private boolean enabled;
+    private boolean admin;
     @Column(nullable = false)
     @JsonIgnore
     private Date createdAt;

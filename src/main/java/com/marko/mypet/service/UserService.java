@@ -37,21 +37,22 @@ public class UserService {
                 return new ResponseEntity<>(responseUserDTO, HttpStatus.OK);
             }
             User user = new User();
-            user.setEnabled(true);
+
 
             user.setFirstName(requestUserDTO.getFirstName());
             user.setLastName(requestUserDTO.getLastName());
 
             user.setEmail(JwtTools.getEmailFromOAuthToken(jwt));
-            user.setEnabled(false);
+            user.setAdmin(false);
 
             user = userRepository.save(user);
             responseUserDTO.setPayload(user);
-            return new ResponseEntity<>(responseUserDTO, HttpStatus.CREATED);
+
         } catch (Exception e) {
             responseUserDTO.addError(e.getMessage());
             return new ResponseEntity<>(responseUserDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(responseUserDTO, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> getUser(Jwt jwt) {

@@ -2,21 +2,21 @@ package com.marko.mypet.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
-@Entity
 @Table(name = "specialty")
+@Entity
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class Specialty {
 
     @Id
@@ -24,9 +24,20 @@ public class Specialty {
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     @Column(name = "id", nullable = false)
     private String id;
-    @Column(name = "id", nullable = false)
+    @Column(name = "name_specialty", nullable = false)
     private String name;
-    @OneToMany(mappedBy = "specialty", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<Vet> vets;
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Specialty breed = (Specialty) o;
+        return id != null && Objects.equals(id, breed.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

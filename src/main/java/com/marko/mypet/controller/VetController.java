@@ -1,6 +1,7 @@
 package com.marko.mypet.controller;
 
 import com.marko.mypet.dto.response.RequestUserDTO;
+import com.marko.mypet.dto.response.RequestVetDTO;
 import com.marko.mypet.service.VetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,7 +20,17 @@ public class VetController {
     private final VetService vetService;
 
     @PostMapping()
-    public ResponseEntity<?> register(@Valid @RequestBody RequestUserDTO requestUserDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
-        return vetService.createVet(requestUserDTO, bindingResult, jwt);
+    public ResponseEntity<?> register(@Valid @RequestBody RequestVetDTO requestVetDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
+        return vetService.createVet(requestVetDTO, bindingResult, jwt);
+    }
+
+    @GetMapping()
+    public ResponseEntity<?> getAllVet(@AuthenticationPrincipal Jwt jwt) {
+        return vetService.getAllVet( jwt);
+    }
+
+    @GetMapping("{specialty}")
+    public ResponseEntity<?> getPet(@PathVariable String specialty, @AuthenticationPrincipal Jwt jwt) {
+        return vetService.getVetSpecialty(specialty, jwt);
     }
 }

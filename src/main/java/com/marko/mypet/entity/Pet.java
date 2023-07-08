@@ -10,7 +10,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "pet")
@@ -44,6 +46,13 @@ public class Pet {
     @JsonBackReference
     private User user;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST
+            , CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinTable(name = "pet_vet",
+            joinColumns = @JoinColumn(name = "pet_id"),
+            inverseJoinColumns = @JoinColumn(name = "vet_id"))
+    private List<Vet> vets;
+
 
     @PrePersist
     private void prePersist() {
@@ -56,5 +65,12 @@ public class Pet {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = new Date();
+    }
+
+    public void addVet(Vet theVet) {
+        if (vets == null) {
+            vets = new ArrayList<>();
+        }
+        vets.add(theVet);
     }
 }

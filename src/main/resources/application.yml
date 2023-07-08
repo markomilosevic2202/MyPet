@@ -4,7 +4,7 @@ spring:
     url: jdbc:mariadb://localhost:3306/my_pet
     username: root
     password: marko
-    initialization: true
+   # initialization: true
   #    # MARIA DBspring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MariaDB103Dialect
   #    spring.datasource.url=jdbc:mariadb://localhost:3306/nexamind
   #  spring.datasource.username=root
@@ -15,14 +15,19 @@ spring:
   #    spring.datasource.testWhileIdle=truespring.datasource.validationQuery=SELECT 1
 
 
-  #  sql:
-  #    init:
-  #      mode: always
+
+
   jpa:
+    defer-datasource-initialization: true
     database-platform: org.hibernate.dialect.MariaDB103Dialect
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
+
+
+
+
+
   mail:
     properties:
       debug: true
