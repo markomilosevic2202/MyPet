@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 
-@Slf4j
+
 @RequiredArgsConstructor
 @Service
 public class PetService {

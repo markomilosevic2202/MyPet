@@ -29,11 +29,11 @@ public class SpecialtyController {
 
     @GetMapping()
     public ResponseEntity<?> getAllSpecialty(@AuthenticationPrincipal Jwt jwt) {
-        return specialtyService.getAllSpecialty( jwt);
+        return specialtyService.getAllSpecialty(jwt);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> putUser( @PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<?> putUser(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return specialtyService.deleteSpecialty(id, jwt);
     }
 }

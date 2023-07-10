@@ -24,7 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/ping")
-    public ResponseEntity<?> ping(Principal principal, HttpServletRequest request){
+    public ResponseEntity<?> ping(Principal principal, HttpServletRequest request) {
         log.info(request.getHeader(""));
         return new ResponseEntity<>("pong", HttpStatus.OK);
     }
@@ -36,7 +36,7 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> getUser(@AuthenticationPrincipal Jwt jwt) {
-        return userService.getUser( jwt);
+        return userService.getUser(jwt);
     }
 
     @PutMapping()

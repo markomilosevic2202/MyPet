@@ -30,6 +30,7 @@ public class PetController {
     public ResponseEntity<?> getPet(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return petService.getPet(id, jwt);
     }
+
     @PutMapping()
     public ResponseEntity<?> updatePet(@RequestBody RequestPetUpdateDTO requestPetUpdateDTO, @AuthenticationPrincipal Jwt jwt) {
         return petService.updatePet(requestPetUpdateDTO, jwt);
@@ -44,6 +45,7 @@ public class PetController {
     public ResponseEntity<?> getPets(@AuthenticationPrincipal Jwt jwt) {
         return petService.getPets(jwt);
     }
+
     @PostMapping("/vet")
     public ResponseEntity<?> addVet(@Valid @RequestBody RequestAddVetPet requestAddVetPet, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
         return petService.addVet(requestAddVetPet, bindingResult, jwt);

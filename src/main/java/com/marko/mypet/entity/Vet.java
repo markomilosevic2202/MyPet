@@ -24,17 +24,13 @@ public class Vet {
     @GenericGenerator(name = "system-uuid", strategy = "uuid2")
     @Column(name = "id", nullable = false)
     private String id;
-
     @Column(name = "first_name", nullable = false)
     private String firstName;
-
     @Column(name = "last_name", nullable = false)
     private String lastName;
-
     @ManyToOne(fetch = FetchType.EAGER )
     @JoinColumn(name = "specialty_id", nullable = true)
     private Specialty specialty;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST
             , CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(name = "pet_vet",

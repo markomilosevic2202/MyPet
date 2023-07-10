@@ -23,6 +23,7 @@ public class VetController {
     public ResponseEntity<?> create(@Valid @RequestBody RequestVetDTO requestVetDTO, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
         return vetService.createVet(requestVetDTO, bindingResult, jwt);
     }
+    @GetMapping
     public ResponseEntity<?> getAllVet(@AuthenticationPrincipal Jwt jwt) {
         return vetService.getAllVet( jwt);
     }
