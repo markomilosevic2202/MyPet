@@ -123,7 +123,6 @@ public class PetService {
             }
 
             Optional<Pet> optionalPet = petRepository.findById(id);
-            Pet pet = optionalPet.get();
             if (optionalPet.isEmpty()) {
                 responseDTO.addError("Pet not found");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
@@ -135,7 +134,7 @@ public class PetService {
             }
             optionalPet.get().setUser(null);
             petRepository.deleteById(id);
-            petRepository.flush();
+           // petRepository.flush();
             responseDTO.addInfo("Pet deleted");
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
@@ -189,16 +188,11 @@ public class PetService {
         }
     }
 
-    public ResponseEntity<?> deleteVet(RequestAddVetPet requestAddVetPet, BindingResult bindingResult, Jwt jwt) {
+    public ResponseEntity<?> deleteVet(RequestAddVetPet requestAddVetPet, Jwt jwt) {
         ResponseDTO responseDTO = new ResponseDTO();
 
         try {
-            if (bindingResult.hasErrors()) {
-                bindingResult.getAllErrors().forEach(objectError -> {
-                    responseDTO.addError(objectError.getDefaultMessage());
-                });
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-            }
+
 
             Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
             if (optionalUser.isEmpty()) {
@@ -212,8 +206,19 @@ public class PetService {
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
 
+            Optional<Vet> optionalVet = vetRepository.findById(requestAddVetPet.getIdVet());
+            if (optionalVet.isEmpty()) {
+                responseDTO.addError("Vet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
             if (!optionalUser.get().getId().equals(optionalPet.get().getUser().getId())) {
                 responseDTO.addError("You are not the owner of this pet. You cannot delete it");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            RequestPetDTO requestPetDTO = mapPetToDTO(optionalPet.get());
+            if (requestPetDTO.getVets().contains(optionalVet.get())) {
+                responseDTO.addError("This vet is not on this pet's list");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
             petRepository.deleteVet(requestAddVetPet.getIdPet(),requestAddVetPet.getIdVet());

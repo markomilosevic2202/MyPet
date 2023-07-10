@@ -117,6 +117,35 @@ public class VetService {
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    public ResponseEntity<?> deleteVet(String id, Jwt jwt) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        try {
+            Optional<User> optionalUser = userRepository.findUserByEmail(JwtTools.getEmailFromOAuthToken(jwt));
+            if (optionalUser.isEmpty()) {
+                responseDTO.addError("User not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            Optional<Vet> optionalVet = vetRepository.findById(id);
+            if (optionalVet.isEmpty()) {
+                responseDTO.addError("Vet not found");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+            if (!optionalUser.get().isAdmin()) {
+                responseDTO.addError("Delete vet is allowed only by admin");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+
+            vetRepository.deleteById(id);
+            vetRepository.flush();
+            responseDTO.addInfo("Vet deleted");
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
     private Vet createVetFromVetDTO(RequestVetDTO requestVetDTO, Vet vet) {
@@ -130,6 +159,7 @@ public class VetService {
 
         return vet;
     }
+
 
 
 }

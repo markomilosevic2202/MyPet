@@ -45,8 +45,8 @@ public class PetController {
     }
 
     @DeleteMapping("/vet")
-    public ResponseEntity<?> deleteVet(@Valid @RequestBody RequestAddVetPet requestAddVetPet, BindingResult bindingResult, @AuthenticationPrincipal Jwt jwt) {
-        return petService.deleteVet(requestAddVetPet, bindingResult, jwt);
+    public ResponseEntity<?> deleteVet(@Valid @RequestBody RequestAddVetPet requestAddVetPet, @AuthenticationPrincipal Jwt jwt) {
+        return petService.deleteVet(requestAddVetPet, jwt);
     }
 
 }
