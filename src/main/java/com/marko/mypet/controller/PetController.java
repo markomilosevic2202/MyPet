@@ -3,6 +3,7 @@ package com.marko.mypet.controller;
 
 import com.marko.mypet.dto.response.RequestAddVetPet;
 import com.marko.mypet.dto.response.RequestPetDTO;
+import com.marko.mypet.dto.response.RequestPetUpdateDTO;
 import com.marko.mypet.service.PetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,10 @@ public class PetController {
     @GetMapping("{id}")
     public ResponseEntity<?> getPet(@PathVariable String id, @AuthenticationPrincipal Jwt jwt) {
         return petService.getPet(id, jwt);
+    }
+    @PutMapping()
+    public ResponseEntity<?> updatePet(@RequestBody RequestPetUpdateDTO requestPetUpdateDTO, @AuthenticationPrincipal Jwt jwt) {
+        return petService.updatePet(requestPetUpdateDTO, jwt);
     }
 
     @DeleteMapping("{id}")

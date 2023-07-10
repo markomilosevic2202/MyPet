@@ -7,9 +7,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -40,11 +38,13 @@ public class Pet {
     @Column(nullable = false)
     @JsonIgnore
     private Date updatedAt;
+    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JoinColumn(name = "breed_id")
+    private Breed breed;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
-
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST
             , CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(name = "pet_vet",
